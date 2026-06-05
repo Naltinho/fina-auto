@@ -1,0 +1,93 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function userDoc() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid));
+    }
+
+    function isAdmin() {
+      return isSignedIn() && userDoc().data.tipo == 'admin';
+    }
+
+    function isCliente() {
+      return isSignedIn() && userDoc().data.tipo == 'cliente';
+    }
+
+    function isProfissional() {
+      return isSignedIn() && userDoc().data.tipo == 'profissional';
+    }
+
+    function pedidoDoc(pedidoId) {
+      return get(/databases/$(database)/documents/pedidos/$(pedidoId));
+    }
+
+    function isPedidoParticipant(pedidoId) {
+      let p = pedidoDoc(pedidoId).data;
+      return p.clienteId == request.auth.uid
+        || p.profissionalId == request.auth.uid;
+    }
+
+    match /users/{userId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn()
+        && request.auth.uid == userId
+        && request.resource.data.tipo in ['cliente', 'profissional', 'admin'];
+      allow update: if request.auth.uid == userId || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    match /oficinas/{oficinaId} {
+      allow read: if isSignedIn();
+      allow write: if isProfissional() || isAdmin();
+    }
+
+    match /mecanicos/{mecanicoId} {
+      allow read: if isSignedIn();
+      allow write: if isProfissional() || isAdmin();
+    }
+
+    match /pedidos/{pedidoId} {
+      allow read: if isSignedIn() && (
+        resource.data.clienteId == request.auth.uid
+        || resource.data.profissionalId == request.auth.uid
+        || (isProfissional() && resource.data.status == 'pendente')
+        || isAdmin()
+      );
+      allow create: if isCliente()
+        && request.resource.data.clienteId == request.auth.uid
+        && request.resource.data.status == 'pendente';
+      allow update: if isSignedIn() && (
+        (isCliente() && resource.data.clienteId == request.auth.uid)
+        || (isProfissional() && (
+          resource.data.status == 'pendente'
+          || resource.data.profissionalId == request.auth.uid
+        ))
+        || isAdmin()
+      );
+    }
+
+    match /chat/{pedidoId}/mensagens/{mensagemId} {
+      allow read, create: if isSignedIn() && isPedidoParticipant(pedidoId);
+    }
+
+    match /produtos/{produtoId} {
+      allow read: if isSignedIn();
+      allow write: if isProfissional() || isAdmin();
+    }
+
+    match /pagamentos/{pagamentoId} {
+      allow read: if isSignedIn() && (
+        resource.data.clienteId == request.auth.uid
+        || resource.data.profissionalId == request.auth.uid
+        || isAdmin()
+      );
+      allow create: if isCliente()
+        && request.resource.data.clienteId == request.auth.uid;
+    }
+  }
+}

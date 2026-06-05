@@ -1,0 +1,29 @@
+name: fina_auto_cliente
+description: Fina-Auto — app do cliente (pedidos de mecânico).
+publish_to: none
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.5.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  firebase_core: ^3.8.0
+  firebase_auth: ^5.4.0
+  cloud_firestore: ^5.6.0
+  google_maps_flutter: ^2.10.0
+  geolocator: ^13.0.2
+  firebase_messaging: ^15.1.6
+  provider: ^6.1.2
+  fina_auto_core:
+    path: ../packages/fina_auto_core
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true

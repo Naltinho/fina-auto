@@ -1,0 +1,15 @@
+name: fina_auto_core
+description: Modelos e constantes partilhados entre Fina-Auto Cliente e Pro.
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: ^3.5.0
+
+dependencies:
+  cloud_firestore: ^5.6.0
+  firebase_auth: ^5.4.0
+  url_launcher: ^6.3.1
+
+dev_dependencies:
+  flutter_lints: ^5.0.0
