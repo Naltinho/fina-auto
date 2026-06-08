@@ -1,0 +1,38 @@
+workflows:
+  android-cliente-workflow:
+    name: FINA-AUTO Cliente APK
+    max_build_duration: 30
+    instance_type: mac_mini_m1
+    environment:
+      flutter: stable
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: main
+    scripts:
+      - name: Limpar e Compilar o App Cliente
+        script: |
+          cd fina_auto_cliente
+          flutter clean
+          flutter pub get
+          flutter build apk --release
+  
+  android-profissional-workflow:
+    name: FINA-AUTO Profissional APK
+    max_build_duration: 30
+    instance_type: mac_mini_m1
+    environment:
+      flutter: stable
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: main
+    scripts:
+      - name: Limpar e Compilar o App Pro
+        script: |
+          cd fina_auto_pro
+          flutter clean
+          flutter pub get
+          flutter build apk --release
